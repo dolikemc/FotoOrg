@@ -1,5 +1,5 @@
 from pathlib import Path, PurePath
-from typing import Iterator, Any, List, Union
+from typing import Iterator, List, Union
 
 
 class Scan:
@@ -11,6 +11,8 @@ class Scan:
         elif isinstance(directory, str):
             self.directory: Path = Path(directory)
         self.ignore_list = ignore_list
+        if self.ignore_list is None:
+            self.ignore_list = []
 
     @property
     def items(self) -> Iterator:
