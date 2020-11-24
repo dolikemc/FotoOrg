@@ -3,6 +3,8 @@ from typing import Iterator, List, Union
 
 
 class Scan:
+    """Class for setup scanning the folder structure and receive files for considerations."""
+
     def __init__(self, directory: Union[PurePath, Path, str] = None, ignore_list: List[str] = None):
         if directory is None:
             self.directory: Path = Path.cwd()
