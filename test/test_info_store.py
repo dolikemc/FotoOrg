@@ -1,10 +1,12 @@
 import unittest
+from datetime import datetime
+
 from fotorg.info.store import Store
 
 
 class TestInfoStore(unittest.TestCase):
     def test_init(self):
-        photo_org_store = Store()
+        photo_org_store = Store({})
         self.assertTrue(photo_org_store)
 
     def test_exif(self):
@@ -24,13 +26,15 @@ class TestInfoStore(unittest.TestCase):
                         24: 246.48684210526315, 29: '2016:06:16', 31: 65.0}, 271: 'Apple', 272: 'iPhone 6',
                 305: '9.3.2', 274: 6, 306: '2016:06:16 12:43:55', 531: 1, 283: 72.0}
 
-        self.assertDictEqual(data, image.info)
-        # print(image.getexif())
-        for tag in image.getexif():
-            if tag not in TAGS:
-                if tag in GPSTAGS:
-                    print(f"{GPSTAGS[tag]} = {image.getexif()[tag]}")
-                else:
-                    print(f"{tag} = {image.getexif()[tag]}")
-            else:
-                print(f"{TAGS[tag]} = {image.getexif()[tag]}")
+        # self.assertDictEqual(data, image.info)
+        item = Store(image.getexif())
+        self.assertEqual(item.camera_model, 'iPhone 6')
+        self.assertEqual(item.created, datetime(2016, 6, 16, 12, 43, 55))
+        self.assertEqual(item.orientation, 6)
+        self.assertEqual(item.resolution_unit, 2)
+        self.assertEqual(item.resolution_x, 72.0)
+        self.assertEqual(item.resolution_y, 72.0)
+        self.assertEqual(item.height, 2448)
+        self.assertEqual(item.width, 3264)
+        self.assertEqual(item.brightness, 6.454077883908891)
+        # GPSInfo = {1: 'N', 2: (44.0, 49.0, 20.06), 3: 'E', 4: (20.0, 24.0, 38.94), 5: b'\x00', 6: 89.0, 7: (10.0, 43.0, 54.37), 12: 'K', 13: 0.0, 16: 'T', 17: 246.48684210526315, 23: 'T', 24: 246.48684210526315, 29: '2016:06:16', 31: 65.0}
