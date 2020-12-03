@@ -7,7 +7,7 @@ from geopy.point import Point
 Base = declarative_base()
 
 
-class Item(Base):
+class FotoItem(Base):
     __tablename__ = 'item'
     id = Column(Integer, primary_key=True)
     name = Column(String)

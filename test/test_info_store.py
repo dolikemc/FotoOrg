@@ -1,13 +1,30 @@
 import unittest
 from datetime import datetime
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 
-from fotorg.info.store import Store
+from fotorg.info.store import Store, FotoItem, Base
 
 
 class TestInfoStore(unittest.TestCase):
+    engine = None
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.engine = create_engine('sqlite:///test.db', echo=True)
+        Base.metadata.drop_all(cls.engine)
+        Base.metadata.create_all(cls.engine)
+        sess = Session(cls.engine)
+        sess.add(FotoItem())
+        sess.commit()
+
     def test_init(self):
         photo_org_store = Store({})
         self.assertTrue(photo_org_store)
+
+    def test_database(self):
+        sess = Session(self.engine)
+        self.assertEqual(len([x for x in sess.query(FotoItem)]), 1)
 
     def test_exif(self):
         from PIL import Image
