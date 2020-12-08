@@ -30,6 +30,7 @@ class TestScan(unittest.TestCase):
         self.assertIn('CIMG3602_DUP.jpeg', items)
         self.assertIn('CIMG3602_SUB_DUP.jpeg', items)
         self.assertIn('CIMG3602_TRIP.jpeg', items, 'not excluded yet')
+        self.assertEqual(20, self.scanner.item_counter)
 
     def test_ignored_files(self) -> None:
         self.scanner = scan.Scan(directory='./test/test_folder',
@@ -40,22 +41,31 @@ class TestScan(unittest.TestCase):
         self.assertIn('CIMG3602_SUB_DUP.jpeg', items)
         self.assertNotIn('sysmlink.txt', items, 'always excluded')
         self.assertNotIn('ignored_and_excluded.txt', items, 'excluded now')
+        self.assertEqual(20, self.scanner.item_counter)
 
     def test_ignored_in_directories(self) -> None:
+        # test/test_folder/includes_sub_folder
+        # test/test_folder/includes_sub_folder/sub_sub
+        # test/test_folder/excluded
         self.scanner = scan.Scan(directory='./test/test_folder', ignore_list=['excluded/'])
         items = [x.name for x in self.scanner.items()]
         self.assertIn('CIMG3602.jpeg', items)
         self.assertIn('CIMG3602_DUP.jpeg', items)
         self.assertIn('CIMG3602_SUB_DUP.jpeg', items)
         self.assertNotIn('CIMG3602_TRIP.jpeg', items, 'excluded now')
+        self.assertEqual(18, self.scanner.item_counter)
 
     def test_ignored_base_directories(self) -> None:
+        # test/test_folder/includes_sub_folder
+        # test/test_folder/includes_sub_folder/sub_sub
+        # test/test_folder/excluded
         self.scanner = scan.Scan(directory='./test/test_folder', ignore_list=['/test/'])
         items = [x.name for x in self.scanner.items()]
         self.assertNotIn('CIMG3602.jpeg', items)
         self.assertNotIn('CIMG3602_DUP.jpeg', items)
         self.assertNotIn('CIMG3602_SUB_DUP.jpeg', items)
         self.assertNotIn('CIMG3602_TRIP.jpeg', items, 'excluded now')
+        self.assertEqual(13, self.scanner.item_counter)
 
     def test_ignored_file_extension(self) -> None:
         self.scanner = scan.Scan(directory='./test/test_folder', ignore_list=['*.txt'])
@@ -65,4 +75,5 @@ class TestScan(unittest.TestCase):
         self.assertIn('CIMG3602_SUB_DUP.jpeg', items)
         self.assertIn('CIMG3602_TRIP.jpeg', items, 'excluded now')
         self.assertNotIn('sysmlink.txt', items, 'always excluded')
+        self.assertEqual(20, self.scanner.item_counter)
         self.assertNotIn('ignored_and_excluded.txt', items, 'excluded now')
