@@ -145,14 +145,8 @@ class Store:
         geo_data = self.__data.get(0x8825, None)
         if geo_data is None:
             return Point()
-        latitude = Point.parse_degrees(geo_data[2][0],
-                                       geo_data[2][1],
-                                       geo_data[2][2],
-                                       geo_data[1])
-        longitude = Point.parse_degrees(geo_data[4][0],
-                                        geo_data[4][1],
-                                        geo_data[4][2],
-                                        geo_data[3])
+        latitude = Point.parse_degrees(*geo_data[2], geo_data[1])
+        longitude = Point.parse_degrees(*geo_data[4], geo_data[3])
         alt_unit = 'km'
         if str(geo_data[5]).lower() in ['m', 'mi', 'ft', 'nm', 'nmi']:
             alt_unit = str(geo_data[5]).lower()
