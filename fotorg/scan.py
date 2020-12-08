@@ -1,11 +1,16 @@
 from pathlib import Path, PurePath
-from typing import Iterator, List, Union
+from typing import Iterator, Union
 
 
 class Scan:
     """Class for setup scanning the folder structure and receive files for considerations."""
 
-    def __init__(self, directory: Union[PurePath, Path, str] = None, ignore_list=None):
+    def __init__(self, directory: Union[PurePath, Path, str] = None, ignore_list=None) -> None:
+        """
+        Constructor
+        :param directory:
+        :param ignore_list:
+        """
         if ignore_list is None:
             ignore_list = []
         if directory is None:
@@ -14,14 +19,14 @@ class Scan:
             self.directory: Path = directory
         elif isinstance(directory, str):
             self.directory: Path = Path(directory)
-        self.item_counter = 0
-        self.ignored_dir_list = []
-        self.ignored_file_list = []
+        self.__item_counter = 0
+        self.__ignored_dir_list = []
+        self.__ignored_file_list = []
         for pattern in ignore_list:
             if pattern.endswith('/'):
-                self.ignored_dir_list.append(pattern)
+                self.__ignored_dir_list.append(pattern)
             else:
-                self.ignored_file_list.append(pattern)
+                self.__ignored_file_list.append(pattern)
 
     @property
     def items(self) -> Iterator:

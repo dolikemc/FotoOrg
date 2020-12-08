@@ -17,7 +17,7 @@ class FotoItem(Base):
 
 
 class Store:
-    def __init__(self, data: Dict):
+    def __init__(self, data: Dict) -> None:
         self.__data = data
 
     """
@@ -151,5 +151,7 @@ class Store:
         if str(geo_data[5]).lower() in ['m', 'mi', 'ft', 'nm', 'nmi']:
             alt_unit = str(geo_data[5]).lower()
         altitude = Point.parse_altitude(geo_data[6], alt_unit)
-        # GPSInfo = {1: 'N', 2: (44.0, 49.0, 20.06), 3: 'E', 4: (20.0, 24.0, 38.94), 5: b'\x00', 6: 89.0, 7: (10.0, 43.0, 54.37), 12: 'K', 13: 0.0, 16: 'T', 17: 246.48684210526315, 23: 'T', 24: 246.48684210526315, 29: '2016:06:16', 31: 65.0}
+        # GPSInfo = {1: 'N', 2: (44.0, 49.0, 20.06), 3: 'E', 4: (20.0, 24.0, 38.94), 5: b'\x00', 6: 89.0,
+        # 7: (10.0, 43.0, 54.37), 12: 'K', 13: 0.0, 16: 'T', 17: 246.48684210526315, 23: 'T', 24: 246.48684210526315,
+        # 29: '2016:06:16', 31: 65.0}
         return Point(latitude=latitude, longitude=longitude, altitude=altitude)
