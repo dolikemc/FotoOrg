@@ -15,7 +15,10 @@ class TestInfoStore(unittest.TestCase):
         Base.metadata.drop_all(cls.engine)
         Base.metadata.create_all(cls.engine)
         sess = Session(cls.engine)
-        sess.add(FotoItem())
+        sess.add(FotoItem(file_name='X.jpg', file_created=datetime.now(),
+                          file_size=123, relative_path='/'))
+        sess.add(FotoItem(file_name='X.jpg', file_created=datetime.now(),
+                          file_size=123, relative_path='/sub'))
         sess.commit()
 
     def test_init(self):
@@ -24,7 +27,11 @@ class TestInfoStore(unittest.TestCase):
 
     def test_database(self):
         sess = Session(self.engine)
-        self.assertEqual(len([x for x in sess.query(FotoItem)]), 1)
+        results = [x for x in sess.query(FotoItem)]
+        self.assertEqual(len(results), 2)
+        # print(results[1])
+        self.assertEqual(results[0].file_name, 'X.jpg')
+        self.assertEqual(results[1].file_name, 'X.jpg')
 
     def test_no_info(self):
         item = Store({})
