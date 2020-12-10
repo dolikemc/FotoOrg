@@ -8,7 +8,7 @@ from fotorg.info.data.file import File
 class TestInfoDataFile(unittest.TestCase):
     def setUp(self) -> None:
         self.file_name = 'IMG_0564.JPG'
-        self.relative_path = 'test/test_folder'
+        self.relative_path = Path('test/test_folder')
         self.item: Path = Path.cwd() / self.relative_path / self.file_name
         self.file = File(self.item, Path.cwd())
 
@@ -18,7 +18,6 @@ class TestInfoDataFile(unittest.TestCase):
     def test_info_data_file_name(self) -> None:
         self.assertEqual(self.file.name, self.file_name)
 
-    # @unittest.skip
     def test_info_data_file_relative_path(self) -> None:
         self.assertEqual(self.file.relative_path, self.relative_path)
 

@@ -21,7 +21,7 @@ class File:
         """
         :return: the path relative to the root directory where the scan started
         """
-        return Path(os.path.relpath(self.__item, self.__directory))
+        return Path(os.path.relpath(self.__item, self.__directory)).parent
 
     @property
     def size(self) -> int:
