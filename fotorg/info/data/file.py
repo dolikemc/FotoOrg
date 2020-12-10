@@ -5,9 +5,9 @@ import os
 
 
 class File:
-    def __init__(self, item: Path, dir: Path) -> None:
+    def __init__(self, item: Path, directory: Path) -> None:
         self.__item = item
-        self.__directory = dir
+        self.__directory = directory
 
     @property
     def name(self) -> str:
@@ -22,6 +22,10 @@ class File:
         :return: the path relative to the root directory where the scan started
         """
         return Path(os.path.relpath(self.__item, self.__directory)).parent
+
+    @property
+    def path(self) -> Path:
+        return self.__item
 
     @property
     def size(self) -> int:
