@@ -45,7 +45,7 @@ class Store:
     def prepare_store(self) -> FotoItem:
         file = File(self.__item, self.__directory)
         try:
-            image = Image.open(file.path)
+            image = Image.open(file.path, mode='r')
             foto = Exif(image.getexif())
         except Exception:
             foto = Exif({})
