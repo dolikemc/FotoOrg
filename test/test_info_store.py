@@ -1,11 +1,10 @@
 import unittest
 from datetime import datetime
+from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from fotorg.info.store import FotoItem, Base
-from fotorg.info.data.file import File
-from fotorg.info.data.exif import Exif
+from fotorg.info.store import BadeDir, FotoItem, Base, Store
 from fotorg.scan import Scan
 
 
@@ -34,25 +33,28 @@ class TestInfoStore(unittest.TestCase):
         self.assertEqual('//X.jpg None None', str(self.results[0]))
 
     def test_store_one_scan(self) -> None:
-        from PIL import Image
         scanner = Scan(directory='./test/test_folder', ignore_list=['*.txt', '.DS_Store'])
         self.assertIsInstance(scanner, Scan)
         for item in scanner.items():
-            file = File(item, scanner.directory)
-            foto = Exif(Image.open(file.path).getexif())
-            entry = FotoItem(
-                file_name=file.name,
-                relative_path=str(file.relative_path),
-                file_created=file.created,
-                file_modified=file.modified,
-                file_size=file.size,
-                foto_created=foto.created,
-                camera_make=foto.make,
-                camera_model=foto.camera_model,
-                gps_longitude=foto.gps_info.longitude,
-                gps_latitude=foto.gps_info.latitude,
-                gps_altitude=foto.gps_info.altitude
-            )
+            entry = Store(item, scanner.directory).prepare_store()
             self.sess.add(entry)
             self.assertIsInstance(entry, FotoItem)
         self.sess.commit()
+
+    def test_store_one_scan_include_no_fotos(self) -> None:
+        scanner = Scan(directory='./test/test_folder', ignore_list=['excluded/', 'included_sub_folder'])
+        self.assertIsInstance(scanner, Scan)
+        for item in scanner.items():
+            entry = Store(item, scanner.directory).prepare_store()
+            self.sess.add(entry)
+            self.assertIsInstance(entry, FotoItem)
+        self.sess.commit()
+
+    def test_store_directory(self) -> None:
+        directory = Path('./test/test_folder')
+        base_dir = BadeDir(path=str(directory))
+        self.sess.add(base_dir)
+        self.sess.commit()
+        results = [x for x in self.sess.query(BadeDir)]
+        self.assertEqual(len(results), 1)
+        self.assertEqual(str(results[0]), str(directory))
