@@ -28,6 +28,50 @@ class Scan:
             else:
                 self.__ignored_file_list.append(pattern)
 
+    def items(self, path: Path = None) -> Iterator[Path]:
+        """
+        Iterator for all items in the given path except if they are in the ignore
+        list or pattern
+        :param path:
+        :return:
+        """
+        if path is None:
+            path = self.directory
+
+        for item in path.iterdir():
+            self.__item_counter += 1
+            if item.is_dir():
+                if not self.__ignore_dir(item):
+                    yield from self.items(item)
+            elif item.is_file() and self.__not_ignore(item):
+                yield item
+
+    def __ignore_dir(self, item: Union[PurePath, Path]) -> bool:
+        for ignore in self.__ignored_dir_list:
+            if ignore.startswith('/'):
+                if str(item).startswith(ignore[1:]):
+                    return True
+            elif ignore.replace('/', '') in item.parts:
+                return True
+        return False
+
+    def __not_ignore(self, item: Union[PurePath, Path]) -> bool:
+        # all other file types are excluded always
+        if item.is_symlink() or item.is_block_device() or item.is_char_device():
+            return False
+        # file name in ignore list. Pattern ^/text^/
+        if item.name in self.__ignored_file_list:
+            return False
+        if '*' + item.suffix in self.__ignored_file_list:
+            return False
+        if self.__ignore_dir(item):
+            return False
+        return True
+
     @property
-    def items(self) -> Iterator:
-        return []
+    def scanned_items(self) -> int:
+        """
+        Number of scanned items regarding the ignore list
+        :return:
+        """
+        return self.__item_counter
