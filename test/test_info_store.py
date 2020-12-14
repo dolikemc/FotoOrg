@@ -2,7 +2,7 @@ import unittest
 from datetime import datetime
 from pathlib import Path
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, configure_mappers
 
 from fotorg.info.store import BadeDir, FotoItem, Base, Store
 from fotorg.scan import Scan
@@ -12,6 +12,7 @@ class TestInfoStore(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        configure_mappers()
         cls.engine = create_engine('sqlite:///test.db', echo=True)
         Base.metadata.drop_all(cls.engine)
         Base.metadata.create_all(cls.engine)

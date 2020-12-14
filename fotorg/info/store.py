@@ -1,10 +1,14 @@
 from pathlib import Path
+from datetime import datetime
 from sqlalchemy import Column, DateTime, Integer, String, Float  # , ForeignKey, func
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy_continuum import make_versioned
 from PIL import Image
 
 from fotorg.info.data.file import File
 from fotorg.info.data.exif import Exif
+
+make_versioned(user_cls=None)
 
 Base = declarative_base()
 
@@ -19,6 +23,7 @@ class BadeDir(Base):
 
 
 class FotoItem(Base):
+    __versioned__ = {}
     __tablename__ = 'foto_item'
     id = Column(Integer, primary_key=True, autoincrement=True)
     file_name = Column(String, nullable=False)
@@ -35,6 +40,21 @@ class FotoItem(Base):
 
     def __str__(self) -> str:
         return f'{self.relative_path}/{self.file_name} {self.camera_make} {self.camera_model}'
+
+
+"""
+class History(Base):
+    __tablename__ = 'history'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    table_name = Column(String)
+    column_name = Column(String)
+    value_before = Column(String, nullable=False)
+    value_after = Column(String, nullable=False)
+    created = Column(DateTime, server_default=datetime.now())
+    user = Column(String, default='N/A')
+
+    def __str__(self) -> str:
+        return f'{self.table_name}.{self.column_name} {self.value_before} -> {self.value_after}'"""
 
 
 class Store:
