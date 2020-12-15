@@ -1,9 +1,13 @@
+import logging
 from pathlib import Path
 from datetime import datetime
 from sqlalchemy import Column, DateTime, Integer, String, Float  # , ForeignKey, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_continuum import make_versioned
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
+
+# FileNotFoundError: If the file cannot be found.
+#     :exception PIL.UnidentifiedImageError
 
 from fotorg.info.data.file import File
 from fotorg.info.data.exif import Exif
@@ -11,12 +15,16 @@ from fotorg.info.data.exif import Exif
 make_versioned(user_cls=None)
 
 Base = declarative_base()
+log = logging.getLogger('fotorg.info.store')
 
 
 class BadeDir(Base):
     __tablename__ = 'base_dir'
     id = Column(Integer, primary_key=True, autoincrement=True)
     path = Column(String, default='/')
+    created = Column(DateTime, default = datetime.now())
+    scan_start = Column(DateTime, default = datetime.now())
+    last_used = Column(DateTime, default = datetime.now())
 
     def __str__(self) -> str:
         return str(self.path)
@@ -42,32 +50,24 @@ class FotoItem(Base):
         return f'{self.relative_path}/{self.file_name} {self.camera_make} {self.camera_model}'
 
 
-"""
-class History(Base):
-    __tablename__ = 'history'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    table_name = Column(String)
-    column_name = Column(String)
-    value_before = Column(String, nullable=False)
-    value_after = Column(String, nullable=False)
-    created = Column(DateTime, server_default=datetime.now())
-    user = Column(String, default='N/A')
-
-    def __str__(self) -> str:
-        return f'{self.table_name}.{self.column_name} {self.value_before} -> {self.value_after}'"""
-
-
 class Store:
+
     def __init__(self, item: Path, directory: Path):
         self.__item = item
         self.__directory = directory
 
     def prepare_store(self) -> FotoItem:
+        """
+        :return: Storable entity
+        :exception FileNotFoundError: If the file cannot be found.
+        """
         file = File(self.__item, self.__directory)
         try:
-            image = Image.open(file.path, mode='r')
-            foto = Exif(image.getexif())
-        except Exception:
+            with Image.open(file.path, mode='r') as image:
+                log.debug(f"{self.__item} scanned for foto information")
+                foto = Exif(image.getexif())
+        except UnidentifiedImageError:
+            log.warning(f"PIL can't identify {self.__item} as a image file format")
             foto = Exif({})
         return FotoItem(
             file_name=file.name,

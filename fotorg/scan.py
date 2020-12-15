@@ -8,8 +8,13 @@ class Scan:
     def __init__(self, directory: Union[PurePath, Path, str] = None, ignore_list=None) -> None:
         """
         Constructor
-        :param directory:
-        :param ignore_list:
+        :param directory: Start path for the scan
+        :param ignore_list: list of ignore patterns
+                'ignored.file' just this file on every folder
+                'all_files_with.ext' all files with this extension
+                'ignored_folder/' all folders with this name
+                '/just/this/folder/'
+                '/just/this/file.ext'
         """
         if ignore_list is None:
             ignore_list = []
@@ -33,7 +38,7 @@ class Scan:
         Iterator for all items in the given path except if they are in the ignore
         list or pattern
         :param path:
-        :return:
+        :return: iterator of path items. steps through the paths skipping items in the ignore list
         """
         if path is None:
             path = self.directory
@@ -59,6 +64,7 @@ class Scan:
         # all other file types are excluded always
         if item.is_symlink() or item.is_block_device() or item.is_char_device():
             return False
+
         # file name in ignore list. Pattern ^/text^/
         if item.name in self.__ignored_file_list:
             return False
@@ -66,12 +72,15 @@ class Scan:
             return False
         if self.__ignore_dir(item):
             return False
+        # full path file name in the list
+        if '/' + str(item.parent / item.name) in self.__ignored_file_list:
+            return False
+
         return True
 
     @property
     def scanned_items(self) -> int:
         """
-        Number of scanned items regarding the ignore list
-        :return:
+        :return: Number of scanned items regarding the ignore list
         """
         return self.__item_counter
