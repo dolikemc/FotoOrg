@@ -1,9 +1,14 @@
 from pathlib import Path, PurePath
 from typing import Iterator, Union
 from datetime import datetime
+import logging
+
 from sqlalchemy.orm import Session
+from sqlalchemy import desc
 
 from fotorg.info.store import Store, FotoItem, BaseDir
+
+log = logging.getLogger('fotorg.scan')
 
 
 class Scan:
@@ -91,12 +96,15 @@ class Scan:
 
     def run(self, session: Session = None):
         if session is not None:
-            base_dir = session.query(BaseDir).filter_by(path=str(self.directory)).order_by('created').first()
+            base_dir = session.query(BaseDir).filter_by(path=str(self.directory)).order_by(
+                desc('created')).first()
             if base_dir:
+                log.debug(f"update for {self.directory}")
                 base_dir.scan_start = datetime.now()
                 base_dir.last_used = datetime.now()
             else:
-                session.add(BaseDir(path=str(self.directory)))
+                log.debug(f"new record for {self.directory}")
+                session.add(BaseDir(path=str(self.directory), user_name='class'))
             session.commit()
 
         for item in self.items():

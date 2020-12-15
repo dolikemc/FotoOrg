@@ -1,4 +1,5 @@
 import unittest
+import logging
 from datetime import datetime
 from pathlib import Path
 from sqlalchemy import create_engine
@@ -6,6 +7,9 @@ from sqlalchemy.orm import Session, configure_mappers
 
 from fotorg.info.store import BaseDir, FotoItem, Base, Store
 from fotorg.scan import Scan
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)-15s %(message)s')
+log = logging.getLogger('test.info.store')
 
 
 class TestInfoStore(unittest.TestCase):
@@ -53,12 +57,16 @@ class TestInfoStore(unittest.TestCase):
 
     def test_store_directory(self) -> None:
         directory = Path('./test/test_folder')
-        base_dir = BaseDir(path=str(directory))
+        base_dir = BaseDir(path=str(directory), user_name='test_store_directory')
         self.sess.add(base_dir)
         self.sess.commit()
         self.assertEqual(str(self.sess.query(BaseDir).first().path), str(directory))
         self.assertGreaterEqual(len(self.sess.query(BaseDir).all()), 1)
         self.assertEqual(str(self.sess.query(BaseDir).first()), str(directory))
+        scanner = Scan(directory='./test/test_folder', ignore_list=[])
+        scanner.run(self.sess)
+        self.assertGreaterEqual(len(self.sess.query(BaseDir).all()), 1)
+        # self.assertEqual(1, 0)
 
     def test_scan_run(self):
         scanner = Scan(directory='./test/test_folder', ignore_list=[])

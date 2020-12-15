@@ -1,6 +1,7 @@
 import logging
 from pathlib import Path
 from datetime import datetime
+
 from sqlalchemy import Column, DateTime, Integer, String, Float  # , ForeignKey, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_continuum import make_versioned
@@ -22,6 +23,7 @@ class BaseDir(Base):
     __tablename__ = 'base_dir'
     id = Column(Integer, primary_key=True, autoincrement=True)
     path = Column(String, default='/')
+    user_name = Column(String, default='')
     created = Column(DateTime, default=datetime.now())
     scan_start = Column(DateTime, default=datetime.now())
     last_used = Column(DateTime, default=datetime.now())
