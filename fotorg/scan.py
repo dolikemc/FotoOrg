@@ -1,5 +1,9 @@
 from pathlib import Path, PurePath
 from typing import Iterator, Union
+from datetime import datetime
+from sqlalchemy.orm import Session
+
+from fotorg.info.store import Store, FotoItem, BaseDir
 
 
 class Scan:
@@ -11,7 +15,7 @@ class Scan:
         :param directory: Start path for the scan
         :param ignore_list: list of ignore patterns
                 'ignored.file' just this file on every folder
-                'all_files_with.ext' all files with this extension
+                '*.all_files_with_this_ext' all files with this extension
                 'ignored_folder/' all folders with this name
                 '/just/this/folder/'
                 '/just/this/file.ext'
@@ -84,3 +88,25 @@ class Scan:
         :return: Number of scanned items regarding the ignore list
         """
         return self.__item_counter
+
+    def run(self, session: Session = None):
+        if session is not None:
+            base_dir = session.query(BaseDir).filter_by(path=str(self.directory)).order_by('created').first()
+            if base_dir:
+                base_dir.scan_start = datetime.now()
+                base_dir.last_used = datetime.now()
+            else:
+                session.add(BaseDir(path=str(self.directory)))
+            session.commit()
+
+        for item in self.items():
+            store = Store(item=item, directory=self.directory)
+            foto_item: FotoItem = store.prepare_store()
+            if session is not None:
+                session.add(foto_item)
+                session.commit()
+
+        if session is not None:
+            base_dir = session.query(BaseDir).filter_by(path=str(self.directory)).order_by('created').first()
+            base_dir.last_used = datetime.now()
+            session.commit()

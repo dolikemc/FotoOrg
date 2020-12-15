@@ -4,7 +4,7 @@ from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, configure_mappers
 
-from fotorg.info.store import BadeDir, FotoItem, Base, Store
+from fotorg.info.store import BaseDir, FotoItem, Base, Store
 from fotorg.scan import Scan
 
 
@@ -22,7 +22,7 @@ class TestInfoStore(unittest.TestCase):
         cls.sess.add(FotoItem(file_name='X.jpg', file_created=datetime.now(),
                               file_size=123, relative_path='/sub'))
         cls.sess.commit()
-        cls.results = [x for x in cls.sess.query(FotoItem)]
+        cls.results = cls.sess.query(FotoItem).all()
 
     def test_database(self) -> None:
         self.assertEqual(len(self.results), 2)
@@ -42,7 +42,7 @@ class TestInfoStore(unittest.TestCase):
             self.assertIsInstance(entry, FotoItem)
         self.sess.commit()
 
-    def test_store_one_scan_include_no_fotos(self) -> None:
+    def test_store_one_scan_include_no_foto(self) -> None:
         scanner = Scan(directory='./test/test_folder', ignore_list=['excluded/', 'included_sub_folder'])
         self.assertIsInstance(scanner, Scan)
         for item in scanner.items():
@@ -53,9 +53,18 @@ class TestInfoStore(unittest.TestCase):
 
     def test_store_directory(self) -> None:
         directory = Path('./test/test_folder')
-        base_dir = BadeDir(path=str(directory))
+        base_dir = BaseDir(path=str(directory))
         self.sess.add(base_dir)
         self.sess.commit()
-        results = [x for x in self.sess.query(BadeDir)]
-        self.assertEqual(len(results), 1)
-        self.assertEqual(str(results[0]), str(directory))
+        self.assertEqual(str(self.sess.query(BaseDir).first().path), str(directory))
+        self.assertGreaterEqual(len(self.sess.query(BaseDir).all()), 1)
+        self.assertEqual(str(self.sess.query(BaseDir).first()), str(directory))
+
+    def test_scan_run(self):
+        scanner = Scan(directory='./test/test_folder', ignore_list=[])
+        scanner.run(self.sess)
+        self.assertEqual(len(self.sess.query(FotoItem).all()), 18)
+        self.assertEqual(len(self.sess.query(BaseDir).all()), 1)
+        scanner.run(self.sess)
+        # self.assertEqual(len(self.sess.query(FotoItem).all()), )
+        self.assertEqual(len(self.sess.query(BaseDir).all()), 1, 'is re used')

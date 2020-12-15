@@ -18,13 +18,13 @@ Base = declarative_base()
 log = logging.getLogger('fotorg.info.store')
 
 
-class BadeDir(Base):
+class BaseDir(Base):
     __tablename__ = 'base_dir'
     id = Column(Integer, primary_key=True, autoincrement=True)
     path = Column(String, default='/')
-    created = Column(DateTime, default = datetime.now())
-    scan_start = Column(DateTime, default = datetime.now())
-    last_used = Column(DateTime, default = datetime.now())
+    created = Column(DateTime, default=datetime.now())
+    scan_start = Column(DateTime, default=datetime.now())
+    last_used = Column(DateTime, default=datetime.now())
 
     def __str__(self) -> str:
         return str(self.path)
