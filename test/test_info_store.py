@@ -1,5 +1,6 @@
 import unittest
 import logging
+
 from datetime import datetime
 from pathlib import Path
 from sqlalchemy import create_engine
@@ -8,14 +9,14 @@ from sqlalchemy.orm import Session, configure_mappers
 from fotorg.info.store import BaseDir, FotoItem, Base, Store
 from fotorg.scan import Scan
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)-15s %(message)s')
-log = logging.getLogger('test.info.store')
-
 
 class TestInfoStore(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        logging.basicConfig(format='%(asctime)-15s %(message)s')
+        log = logging.getLogger('test.info.store')
+        log.setLevel(logging.DEBUG)
         configure_mappers()
         cls.engine = create_engine('sqlite:///test.db', echo=True)
         Base.metadata.drop_all(cls.engine)
