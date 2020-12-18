@@ -38,28 +38,20 @@ class TestInfoStore(unittest.TestCase):
         self.assertGreater(len(self.results), 0)
         self.assertEqual('//X.jpg None None', str(self.results[0]))
 
-    def test_store_one_scan(self) -> None:
-        scanner = Scan(directory='./test/test_folder', ignore_list=['*.txt', '.DS_Store'])
-        self.assertIsInstance(scanner, Scan)
-        for item in scanner.items():
-            entry = Store(item, scanner.directory).prepare_store()
-            self.sess.add(entry)
-            self.assertIsInstance(entry, FotoItem)
-        self.sess.commit()
-
     def test_store_one_scan_include_no_foto(self) -> None:
-        scanner = Scan(directory='./test/test_folder', ignore_list=['excluded/', 'included_sub_folder'])
+        scanner = Scan(directory='./test/test_folder', ignore_list=['included_sub_folder'])
         self.assertIsInstance(scanner, Scan)
         for item in scanner.items():
             entry = Store(item, scanner.directory).prepare_store()
-            self.sess.add(entry)
+            existing: FotoItem = self.sess.query(FotoItem).filter_by(file_name=entry.file_name,
+                                                                     relative_path=entry.relative_path).first()
+            if existing:
+                existing.file_modified = datetime.now()
             self.assertIsInstance(entry, FotoItem)
         self.sess.commit()
 
     def test_store_directory(self) -> None:
         directory = Path('./test/test_folder')
-        base_dir = BaseDir(path=str(directory), user_name='test_store_directory')
-        self.sess.add(base_dir)
         self.sess.commit()
         self.assertEqual(str(self.sess.query(BaseDir).first().path), str(directory))
         self.assertGreaterEqual(len(self.sess.query(BaseDir).all()), 1)
@@ -70,9 +62,9 @@ class TestInfoStore(unittest.TestCase):
         # self.assertEqual(1, 0)
 
     def test_scan_run(self):
-        scanner = Scan(directory='./test/test_folder', ignore_list=[])
+        scanner = Scan(directory='./test/test_folder', ignore_list=['excluded/', ])
         scanner.run(self.sess)
-        self.assertEqual(len(self.sess.query(FotoItem).all()), 18)
+        self.assertEqual(len(self.sess.query(FotoItem).all()), 16)
         self.assertEqual(len(self.sess.query(BaseDir).all()), 1)
         scanner.run(self.sess)
         # self.assertEqual(len(self.sess.query(FotoItem).all()), )

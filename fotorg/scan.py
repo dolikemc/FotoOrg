@@ -111,7 +111,14 @@ class Scan:
             store = Store(item=item, directory=self.directory)
             foto_item: FotoItem = store.prepare_store()
             if session is not None:
-                session.add(foto_item)
+                existing_item: FotoItem = session.query(FotoItem).filter_by(
+                    file_name=foto_item.file_name,
+                    relative_path=foto_item.relative_path
+                ).first()
+                if existing_item:
+                    existing_item = foto_item
+                else:
+                    session.add(foto_item)
                 session.commit()
 
         if session is not None:

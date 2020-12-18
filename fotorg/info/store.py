@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, Integer, String, Float  # , ForeignKey, func
+from sqlalchemy import Column, DateTime, Integer, String, Float, UniqueConstraint, Index
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_continuum import make_versioned
 from PIL import Image, UnidentifiedImageError
@@ -22,7 +22,7 @@ log = logging.getLogger('fotorg.info.store')
 class BaseDir(Base):
     __tablename__ = 'base_dir'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    path = Column(String, default='/')
+    path = Column(String, default='/', unique=True)
     user_name = Column(String, default='')
     created = Column(DateTime, default=datetime.now())
     scan_start = Column(DateTime, default=datetime.now())
@@ -47,6 +47,9 @@ class FotoItem(Base):
     gps_longitude = Column(Float)
     gps_latitude = Column(Float)
     gps_altitude = Column(Float)
+
+    UniqueConstraint(file_name, relative_path)
+    Index(file_name, relative_path)
 
     def __str__(self) -> str:
         return f'{self.relative_path}/{self.file_name} {self.camera_make} {self.camera_model}'
