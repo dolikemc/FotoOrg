@@ -4,4 +4,6 @@ todo
 ## Basic usage
 todo
 ## Bugs and limitations
-todo
+* Look for table versioning
+* Get unit tests running
+* Pillow/Point

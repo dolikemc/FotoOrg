@@ -133,6 +133,8 @@ class Exif:
         geo_data = self.__data.get(0x8825, None)
         if geo_data is None:
             return Point()
+        if isinstance(geo_data, int):
+            return Point()
         latitude = Point.parse_degrees(*geo_data[2], geo_data[1])
         longitude = Point.parse_degrees(*geo_data[4], geo_data[3])
         alt_unit = 'km'

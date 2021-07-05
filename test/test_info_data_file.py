@@ -25,5 +25,7 @@ class TestInfoDataFile(unittest.TestCase):
         self.assertEqual(self.file.size, 2323253)
 
     def test_info_data_file_timestamps(self) -> None:
-        self.assertEqual(self.file.created, datetime(2020, 12, 8, 21, 35, 2, 319917))
+        # todo: file creation came from check out
+        # self.assertEqual(self.file.created,
+        # datetime(2020, 12, 8, 21, 35, 2, 319917))
         self.assertEqual(self.file.modified, self.file.created)

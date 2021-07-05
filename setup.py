@@ -11,7 +11,6 @@ setup(
     description='Organize your Fotos',
     install_requires=[
         'sqlalchemy>=1.4.20',
-        'sqlalchemy_continuum>=1.3.11',
         'Pillow>=8.3.0',
         'geopy>=2.1.0',
     ],
