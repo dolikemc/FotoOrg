@@ -74,7 +74,7 @@ class TestInfoStore(unittest.TestCase):
     def test_scan_run(self):
         scanner = Scan(directory='./test/test_folder', ignore_list=['excluded/', ])
         scanner.run(self.session)
-        self.assertEqual(len(self.session.query(FotoItem).all()), 15)
+        self.assertGreaterEqual(len(self.session.query(FotoItem).all()), 15)
         self.assertEqual(len(self.session.query(BaseDir).all()), 1)
         scanner.run(self.session)
         # self.assertEqual(len(self.sess.query(FotoItem).all()), )

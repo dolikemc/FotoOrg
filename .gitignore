@@ -1,2 +1,5 @@
 /test.db
 /identifier.sqlite
+/venv/
+/.idea/
+/FotoOrg.egg-info/

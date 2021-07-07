@@ -14,7 +14,8 @@ log = logging.getLogger('fotorg.scan')
 class Scan:
     """Class for setup scanning the folder structure and receive files for considerations."""
 
-    def __init__(self, directory: Union[PurePath, Path, str] = None, ignore_list=None) -> None:
+    def __init__(self, directory: Union[PurePath, Path, str] = None,
+                 ignore_list=None) -> None:
         """
         Constructor
         :param directory: Start path for the scan
@@ -61,11 +62,15 @@ class Scan:
                 yield item
 
     def __ignore_dir(self, item: Union[PurePath, Path]) -> bool:
+        if item.as_posix().startswith(Path.cwd().as_posix()):
+            r_item = item.relative_to(Path.cwd())
+        else:
+            r_item = item
         for ignore in self.__ignored_dir_list:
             if ignore.startswith('/'):
-                if str(item).startswith(ignore[1:]):
+                if r_item.as_posix().startswith(ignore[1:]):
                     return True
-            elif ignore.replace('/', '') in item.parts:
+            elif ignore.replace('/', '') in r_item.parts:
                 return True
         return False
 
@@ -96,7 +101,8 @@ class Scan:
 
     def run(self, session: Session = None):
         if session is not None:
-            base_dir = session.query(BaseDir).filter_by(path=str(self.directory)).order_by(
+            base_dir = session.query(BaseDir).filter_by(
+                path=str(self.directory)).order_by(
                 desc('created')).first()
             if base_dir:
                 log.debug(f"update for {self.directory}")
@@ -104,7 +110,8 @@ class Scan:
                 base_dir.last_used = datetime.now()
             else:
                 log.debug(f"new record for {self.directory}")
-                session.add(BaseDir(path=str(self.directory), user_name='class'))
+                session.add(
+                    BaseDir(path=str(self.directory), user_name='class'))
             session.commit()
 
         for item in self.items():
@@ -122,6 +129,7 @@ class Scan:
                 session.commit()
 
         if session is not None:
-            base_dir = session.query(BaseDir).filter_by(path=str(self.directory)).order_by('created').first()
+            base_dir = session.query(BaseDir).filter_by(
+                path=str(self.directory)).order_by('created').first()
             base_dir.last_used = datetime.now()
             session.commit()

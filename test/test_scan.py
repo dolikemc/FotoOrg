@@ -14,9 +14,9 @@ class TestScan(unittest.TestCase):
         self.assertTrue(str(self.scanner.directory).endswith('FotoOrg'))
 
     def test_default_init_directory(self) -> None:
-        self.scanner = scan.Scan('./test/test_folder')
+        self.scanner = scan.Scan(Path.cwd() / 'test' / 'test_folder')
         self.assertEqual(self.scanner.directory.name, 'test_folder')
-        self.assertEqual(str(self.scanner.directory), 'test/test_folder')
+        self.assertEqual(self.scanner.directory.parent.name, 'test')
 
     def test_path_init_directory(self) -> None:
         self.scanner = scan.Scan(Path('./test'))
@@ -24,7 +24,8 @@ class TestScan(unittest.TestCase):
         self.assertEqual(str(self.scanner.directory), 'test')
 
     def test_list_files(self) -> None:
-        self.scanner = scan.Scan(directory='./test/test_folder', ignore_list=None)
+        self.scanner = scan.Scan(directory='./test/test_folder',
+                                 ignore_list=None)
         items = [x.name for x in self.scanner.items()]
         self.assertIn('CIMG3602.jpeg', items)
         self.assertIn('CIMG3602_DUP.jpeg', items)
@@ -47,7 +48,8 @@ class TestScan(unittest.TestCase):
         # test/test_folder/includes_sub_folder
         # test/test_folder/includes_sub_folder/sub_sub
         # test/test_folder/excluded
-        self.scanner = scan.Scan(directory='./test/test_folder', ignore_list=['excluded/'])
+        self.scanner = scan.Scan(directory='./test/test_folder',
+                                 ignore_list=['excluded/'])
         items = [x.name for x in self.scanner.items()]
         self.assertIn('CIMG3602.jpeg', items)
         self.assertIn('CIMG3602_DUP.jpeg', items)
@@ -59,7 +61,8 @@ class TestScan(unittest.TestCase):
         # test/test_folder/includes_sub_folder
         # test/test_folder/includes_sub_folder/sub_sub
         # test/test_folder/excluded
-        self.scanner = scan.Scan(directory='./test/test_folder', ignore_list=['/test/'])
+        self.scanner = scan.Scan(directory=Path.cwd() / 'test' / 'test_folder',
+                                 ignore_list=['/test/'])
         items = [x.name for x in self.scanner.items()]
         self.assertNotIn('CIMG3602.jpeg', items)
         self.assertNotIn('CIMG3602_DUP.jpeg', items)
@@ -68,7 +71,8 @@ class TestScan(unittest.TestCase):
         self.assertEqual(12, self.scanner.scanned_items)
 
     def test_ignored_file_extension(self) -> None:
-        self.scanner = scan.Scan(directory='./test/test_folder', ignore_list=['*.txt'])
+        self.scanner = scan.Scan(directory=Path.cwd() / 'test' / 'test_folder',
+                                 ignore_list=['*.txt'])
         items = [x.name for x in self.scanner.items()]
         self.assertIn('CIMG3602.jpeg', items)
         self.assertIn('CIMG3602_DUP.jpeg', items)
@@ -79,7 +83,9 @@ class TestScan(unittest.TestCase):
         self.assertNotIn('ignored_and_excluded.txt', items, 'excluded now')
 
     def test_root_folder(self) -> None:
-        self.scanner = scan.Scan(directory='./test/test_folder/includes_sub_folder', ignore_list=['*.txt'])
+        self.scanner = scan.Scan(
+            directory=Path.cwd() / 'test' / 'test_folder' /
+                      'includes_sub_folder', ignore_list=['*.txt'])
         items = [x.name for x in self.scanner.items()]
         self.assertNotIn('CIMG3602.jpeg', items)
         self.assertIn('CIMG3602_DUP.jpeg', items)
@@ -89,9 +95,10 @@ class TestScan(unittest.TestCase):
         self.assertEqual(5, self.scanner.scanned_items)
 
     def test_ignored_exact_this_file(self) -> None:
-        self.scanner = scan.Scan(directory='./test/test_folder',
-                                 ignore_list=['excluded/',
-                                              '/test/test_folder/includes_sub_folder/ignored_and_excluded.txt'])
+        self.scanner = scan.Scan(
+            directory=Path.cwd() / 'test' / 'test_folder',
+            ignore_list=['excluded/', '/test/test_folder/includes_sub_folder/'
+                                      'ignored_and_excluded.txt'])
         items = [x.name for x in self.scanner.items()]
         self.assertIn('CIMG3602.jpeg', items)
         self.assertIn('CIMG3602_DUP.jpeg', items)
