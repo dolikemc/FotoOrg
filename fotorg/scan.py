@@ -78,7 +78,13 @@ class Scan:
         # all other file types are excluded always
         if item.is_symlink() or item.is_block_device() or item.is_char_device():
             return False
-
+        # relative path name in ignore list.
+        if item.as_posix().startswith(
+                Path.cwd().as_posix()) and '/' + item.relative_to(
+            Path.cwd()).as_posix() in self.__ignored_file_list:
+            return False
+        if item.as_posix() in self.__ignored_file_list:
+            return False
         # file name in ignore list. Pattern ^/text^/
         if item.name in self.__ignored_file_list:
             return False
@@ -87,7 +93,7 @@ class Scan:
         if self.__ignore_dir(item):
             return False
         # full path file name in the list
-        if '/' + str(item.parent / item.name) in self.__ignored_file_list:
+        if (item.parent / item.name).as_posix() in self.__ignored_file_list:
             return False
 
         return True
