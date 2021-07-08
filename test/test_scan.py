@@ -7,13 +7,15 @@ from pathlib import Path
 class TestScan(unittest.TestCase):
     def setUp(self) -> None:
         self.symlink = 0
+        path_to_symlink = None
         # todo: create a symlink for win10
         if os.name != 'nt':
             for item in Path.cwd().rglob('symlink.*'):
                 if item.name == 'symlink.txt' and not (
                         item.parent / 'symlink.lnk').exists():
                     (item.parent / 'symlink.lnk').symlink_to(item, False)
-        if (item.parent / 'symlink.lnk').exists():            
+                    path_to_symlink = item.parent / 'symlink.lnk'
+        if path_to_symlink and path_to_symlink.exists():
             self.symlink = 1
         self.scanner = scan.Scan()
 
