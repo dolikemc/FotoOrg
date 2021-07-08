@@ -11,10 +11,10 @@ class TestScan(unittest.TestCase):
         # todo: create a symlink for win10
         if os.name != 'nt':
             for item in Path.cwd().rglob('symlink.*'):
-                if item.name == 'symlink.txt' and not (
-                        item.parent / 'symlink.lnk').exists():
-                    (item.parent / 'symlink.lnk').symlink_to(item, False)
+                if item.name == 'symlink.txt':
                     path_to_symlink = item.parent / 'symlink.lnk'
+                    if not path_to_symlink.exists():
+                        path_to_symlink.symlink_to(item, False)
         if path_to_symlink and path_to_symlink.exists():
             self.symlink = 1
         self.scanner = scan.Scan()
