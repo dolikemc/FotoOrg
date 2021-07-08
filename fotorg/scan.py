@@ -12,7 +12,8 @@ log = logging.getLogger('fotorg.scan')
 
 
 class Scan:
-    """Class for setup scanning the folder structure and receive files for considerations."""
+    """Class for setup scanning the folder structure and receive files for
+    considerations."""
 
     def __init__(self, directory: Union[PurePath, Path, str] = None,
                  ignore_list=None) -> None:
@@ -45,10 +46,11 @@ class Scan:
 
     def items(self, path: Path = None) -> Iterator[Path]:
         """
-        Iterator for all items in the given path except if they are in the ignore
-        list or pattern
+        Iterator for all items in the given path except if they are in the
+        ignore list or pattern
         :param path:
-        :return: iterator of path items. steps through the paths skipping items in the ignore list
+        :return: iterator of path items. steps through the paths skipping
+        items in the ignore list
         """
         if path is None:
             path = self.directory
@@ -78,13 +80,12 @@ class Scan:
         # all other file types are excluded always
         if item.is_symlink() or item.is_block_device() or item.is_char_device():
             return False
-        # relative path name in ignore list.
-        if item.as_posix().startswith(
-                Path.cwd().as_posix()) and '/' + item.relative_to(
-            Path.cwd()).as_posix() in self.__ignored_file_list:
-            return False
-        if item.as_posix() in self.__ignored_file_list:
-            return False
+        # item with full path name given
+        if item.as_posix().startswith(Path.cwd().as_posix()):
+            # relative path name in ignore list.
+            if '/' + item.relative_to(Path.cwd()).as_posix(
+            ) in self.__ignored_file_list:
+                return False
         # file name in ignore list. Pattern ^/text^/
         if item.name in self.__ignored_file_list:
             return False
@@ -92,10 +93,6 @@ class Scan:
             return False
         if self.__ignore_dir(item):
             return False
-        # full path file name in the list
-        if (item.parent / item.name).as_posix() in self.__ignored_file_list:
-            return False
-
         return True
 
     @property

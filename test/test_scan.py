@@ -1,3 +1,5 @@
+import logging
+import os
 import unittest
 from fotorg import scan
 from pathlib import Path
@@ -5,6 +7,13 @@ from pathlib import Path
 
 class TestScan(unittest.TestCase):
     def setUp(self) -> None:
+        # todo: create a symlink
+        if os.name != 'nt':
+            for item in Path.cwd().rglob('symlink.*'):
+                print(item.parent)
+                if item.name == 'symlink.txt' and not (
+                        item.parent / 'symlink.lnk').exists():
+                    (item.parent / 'symlink.lnk').symlink_to(item, False)
         self.scanner = scan.Scan()
 
     def test_get_start_directory(self) -> None:
