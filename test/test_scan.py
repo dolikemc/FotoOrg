@@ -78,7 +78,7 @@ class TestScan(unittest.TestCase):
         self.assertNotIn('CIMG3602_DUP.jpeg', items)
         self.assertNotIn('CIMG3602_SUB_DUP.jpeg', items)
         self.assertNotIn('CIMG3602_TRIP.jpeg', items, 'excluded now')
-        self.assertEqual(12 + self.symlink, self.scanner.scanned_items)
+        self.assertEqual(12, self.scanner.scanned_items)
 
     def test_ignored_file_extension(self) -> None:
         self.scanner = scan.Scan(directory=Path.cwd() / 'test' / 'test_folder',
