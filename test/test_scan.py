@@ -1,21 +1,25 @@
-import os
 import unittest
 from fotorg import scan
 from pathlib import Path
 
 
 class TestScan(unittest.TestCase):
+    path_to_symlink = None
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        for item in Path.cwd().rglob('symlink.*'):
+            if item.name == 'symlink.txt':
+                cls.path_to_symlink = item.parent / 'symlink.lnk'
+                if not cls.path_to_symlink.exists():
+                    try:
+                        cls.path_to_symlink.symlink_to(item, False)
+                    except OSError as exc:
+                        print(exc)
+
     def setUp(self) -> None:
         self.symlink = 0
-        path_to_symlink = None
-        # todo: create a symlink for win10
-        if os.name != 'nt':
-            for item in Path.cwd().rglob('symlink.*'):
-                if item.name == 'symlink.txt':
-                    path_to_symlink = item.parent / 'symlink.lnk'
-                    if not path_to_symlink.exists():
-                        path_to_symlink.symlink_to(item, False)
-        if path_to_symlink and path_to_symlink.exists():
+        if self.path_to_symlink and self.path_to_symlink.exists():
             self.symlink = 1
         self.scanner = scan.Scan()
 
