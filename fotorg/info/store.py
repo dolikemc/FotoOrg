@@ -3,7 +3,11 @@ from pathlib import Path
 from datetime import datetime
 
 from sqlalchemy import Column, DateTime, Integer, String, Float, UniqueConstraint, Index
-from sqlalchemy.orm import declarative_base
+# for SQLAlchemy >= 1.4 switch to this
+# from sqlalchemy.orm import declarative_base
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy_continuum import make_versioned
+
 from PIL import Image, UnidentifiedImageError
 
 # FileNotFoundError: If the file cannot be found.
@@ -12,6 +16,7 @@ from PIL import Image, UnidentifiedImageError
 from fotorg.info.data.file import File
 from fotorg.info.data.exif import Exif
 
+make_versioned(user_cls=None)
 Base = declarative_base()
 log = logging.getLogger('fotorg.info.store')
 
@@ -29,8 +34,8 @@ class BaseDir(Base):
         return str(self.path)
 
 
-
 class FotoItem(Base):
+    __versioned__ = {}
     __tablename__ = 'foto_item'
     id = Column(Integer, primary_key=True, autoincrement=True)
     file_name = Column(String, nullable=False)

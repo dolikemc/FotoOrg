@@ -10,8 +10,9 @@ setup(
     author_email='dolikemc@gmail.com',
     description='Organize your Fotos',
     install_requires=[
-        'sqlalchemy>=1.4.20',
+        'sqlalchemy>=1.3.24,<1.4.0',
         'Pillow>=8.3.0',
         'geopy>=2.1.0',
+        'sqlalchemy-continuum>=1.3.6',
     ],
 )

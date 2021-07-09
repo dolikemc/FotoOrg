@@ -4,7 +4,8 @@ import logging
 from datetime import datetime
 from pathlib import Path
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, declarative_base, configure_mappers
+from sqlalchemy.orm import Session, configure_mappers
+# from sqlalchemy.ext.declarative import declarative_base
 
 from fotorg.info.store import Base, BaseDir, FotoItem, Store
 from fotorg.scan import Scan
@@ -15,16 +16,17 @@ log.setLevel(logging.DEBUG)
 
 
 class TestInfoStore(unittest.TestCase):
+    engine = None
 
     @classmethod
     def setUpClass(cls) -> None:
-        global engine
-        engine = create_engine('sqlite:///test.db', echo=True)
+        configure_mappers()
+        cls.engine = create_engine('sqlite:///test.db', echo=True)
         # configure_mappers()
-        Base.metadata.drop_all(engine)
-        Base.metadata.create_all(engine)
+        Base.metadata.drop_all(cls.engine)
+        Base.metadata.create_all(cls.engine)
 
-        sess = Session(engine)
+        sess = Session(cls.engine)
         sess.add(FotoItem(file_name='X.jpg', file_created=datetime.now(),
                           file_size=123, relative_path='/'))
         sess.add(FotoItem(file_name='X.jpg', file_created=datetime.now(),
@@ -33,7 +35,7 @@ class TestInfoStore(unittest.TestCase):
         log.warning('class setup done')
 
     def setUp(self) -> None:
-        self.session = Session(engine)
+        self.session = Session(self.engine)
 
     def test_database(self) -> None:
         self.results = self.session.query(FotoItem).all()
