@@ -5,6 +5,7 @@ from datetime import datetime
 from sqlalchemy import Column, DateTime, Integer, String, Float, UniqueConstraint, Index
 # for SQLAlchemy >= 1.4 switch to this
 # from sqlalchemy.orm import declarative_base
+# https://github.com/kvesteri/sqlalchemy-continuum/issues/255
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_continuum import make_versioned
 

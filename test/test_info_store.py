@@ -81,3 +81,15 @@ class TestInfoStore(unittest.TestCase):
         scanner.run(self.session)
         # self.assertEqual(len(self.sess.query(FotoItem).all()), )
         self.assertEqual(len(self.session.query(BaseDir).all()), 1, 'is re used')
+
+    def test_versioning(self) -> None:
+        foto: FotoItem = self.session.query(FotoItem).first()
+        self.assertEqual(foto.id, 1)
+        self.assertTrue(hasattr(foto, 'versions'))
+        self.assertEqual(foto.versions[0].file_name, 'X.jpg')
+        foto.file_name = 'Y.jpg'
+        self.session.commit()
+        self.assertEqual(foto.versions[1].file_name, 'Y.jpg')
+        foto: FotoItem = self.session.query(FotoItem).get(1)
+        self.assertEqual(foto.id, 1)
+        self.assertEqual(foto.file_name, 'Y.jpg')
