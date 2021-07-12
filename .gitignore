@@ -4,3 +4,5 @@
 /.idea/
 /FotoOrg.egg-info/
 /test/test_folder/includes_sub_folder/symlink.lnk
+/dist/
+/build/
