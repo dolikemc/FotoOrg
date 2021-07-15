@@ -5,6 +5,8 @@ from datetime import datetime
 from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, configure_mappers
+from sqlalchemy_continuum import count_versions
+
 # from sqlalchemy.ext.declarative import declarative_base
 
 from fotorg.info.store import Base, BaseDir, FotoItem, Store
@@ -71,7 +73,6 @@ class TestInfoStore(unittest.TestCase):
         scanner = Scan(directory='./test/test_folder', ignore_list=[])
         scanner.run(self.session)
         self.assertGreaterEqual(len(self.session.query(BaseDir).all()), 1)
-        # self.assertEqual(1, 0)
 
     def test_scan_run(self):
         scanner = Scan(directory='./test/test_folder', ignore_list=['excluded/', ])
@@ -86,10 +87,10 @@ class TestInfoStore(unittest.TestCase):
         foto: FotoItem = self.session.query(FotoItem).first()
         self.assertEqual(foto.id, 1)
         self.assertTrue(hasattr(foto, 'versions'))
-        self.assertEqual(foto.versions[0].file_name, 'X.jpg')
+        self.assertEqual(count_versions(foto), 1)
         foto.file_name = 'Y.jpg'
         self.session.commit()
-        self.assertEqual(foto.versions[1].file_name, 'Y.jpg')
+        self.assertEqual(count_versions(foto), 2)
         foto: FotoItem = self.session.query(FotoItem).get(1)
         self.assertEqual(foto.id, 1)
         self.assertEqual(foto.file_name, 'Y.jpg')
