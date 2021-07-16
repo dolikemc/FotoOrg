@@ -37,10 +37,13 @@ class BaseDir(Base):
 
     @property
     def as_path(self) -> Path:
+        """
+        Returns: Path name stored as string converted to a path object
+        """
         return Path(self.path)
 
     def __str__(self) -> str:
-        return self.path
+        return str(self.path)
 
 
 class FotoItem(Base):
@@ -67,6 +70,9 @@ class FotoItem(Base):
 
     @property
     def as_path(self) -> Path:
+        """
+        :return: Path name stored as string converted to a path object
+        """
         return Path(self.relative_path) / self.file_name
 
     def __str__(self) -> str:
@@ -90,10 +96,10 @@ class Store:
         file = File(self.__item, self.__directory)
         try:
             with Image.open(file.path, mode='r') as image:
-                log.debug(f"{self.__item} scanned for foto information")
+                log.debug("%s scanned for foto information", self.__item)
                 foto = Exif(image.getexif())
         except UnidentifiedImageError:
-            log.warning(f"PIL can't identify {self.__item} as a image file format")
+            log.warning(f"PIL can't identify %s as a image file format", self.__item)
             foto = Exif({})
         return FotoItem(
             file_name=file.name,
