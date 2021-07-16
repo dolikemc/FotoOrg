@@ -1,5 +1,6 @@
 import unittest
 from main import start_application
+from os import getenv
 
 
 class ApplicationTestCase(unittest.TestCase):
@@ -12,6 +13,8 @@ class ApplicationTestCase(unittest.TestCase):
         self.app.mainloop()
 
     def setUp(self):
+        if getenv('DISPLAY', '') == '':
+            self.skipTest('no display set')
         self.app = start_application()
         self._start_app()
 
