@@ -103,17 +103,20 @@ class Scan:
         """
         return self.__item_counter
 
-    def run(self, session: Session = None):
+    def run(self, session: Session = None) -> None:
+        """
+        Process a scan run
+        """
         if session is not None:
             base_dir = session.query(BaseDir).filter_by(
                 path=str(self.directory)).order_by(
                 desc('created')).first()
             if base_dir:
-                log.debug(f"update for %s", {self.directory})
+                log.debug("update for %s", self.directory)
                 base_dir.scan_start = datetime.now()
                 base_dir.last_used = datetime.now()
             else:
-                log.debug("new record for %s", {self.directory})
+                log.debug("new record for %s", self.directory)
                 session.add(
                     BaseDir(path=self.directory.as_posix(), user_name='class'))
             session.commit()
