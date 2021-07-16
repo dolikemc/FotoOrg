@@ -99,7 +99,7 @@ class Store:
                 log.debug("%s scanned for foto information", self.__item)
                 foto = Exif(image.getexif())
         except UnidentifiedImageError:
-            log.warning(f"PIL can't identify %s as a image file format", self.__item)
+            log.warning("PIL can't identify %s as a image file format", self.__item)
             foto = Exif({})
         return FotoItem(
             file_name=file.name,
