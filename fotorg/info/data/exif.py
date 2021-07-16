@@ -8,27 +8,22 @@ class Exif:
     def __init__(self, data: Dict) -> None:
         self.__data = data
 
-    """
-       
-        # GPSInfo = {
-        1: 'N', 2: (44.0, 49.0, 20.06), 
-        3: 'E', 4: (20.0, 24.0, 38.94), 
-        5: b'\x00', 
-        6: 89.0, 
-        7: (10.0, 43.0, 54.37), 
-        12: 'K', 13: 0.0, 16: 'T', 17: 246.48684210526315, 23: 'T', 
-        24: 246.48684210526315, 29: '2016:06:16', 31: 65.0}
-     0: "GPSVersionID",
-    1: "GPSLatitudeRef",
-    2: "GPSLatitude",
-    3: "GPSLongitudeRef",
-    4: "GPSLongitude",
-    5: "GPSAltitudeRef",
-    6: "GPSAltitude",
-    7: "GPSTimeStamp",
-    
-
-    """
+    # GPSInfo = {
+    #    1: 'N', 2: (44.0, 49.0, 20.06),
+    #    3: 'E', 4: (20.0, 24.0, 38.94),
+    #    5: b'\x00',
+    #    6: 89.0,
+    #    7: (10.0, 43.0, 54.37),
+    #    12: 'K', 13: 0.0, 16: 'T', 17: 246.48684210526315, 23: 'T',
+    #    24: 246.48684210526315, 29: '2016:06:16', 31: 65.0}
+    # 0: "GPSVersionID",
+    # 1: "GPSLatitudeRef",
+    # 2: "GPSLatitude",
+    # 3: "GPSLongitudeRef",
+    # 4: "GPSLongitude",
+    # 5: "GPSAltitudeRef",
+    # 6: "GPSAltitude",
+    # 7: "GPSTimeStamp",
 
     @property
     def image_description(self) -> str:
@@ -124,8 +119,10 @@ class Exif:
     def created(self) -> datetime:
         """9003	DateTimeOriginal	Aufnahmedatum
         # DateTimeOriginal = 2016:06:16 12:43:55"""
-        date_values = [int(x) for x in self.__data.get(0x9003, '1970:01:01 00:00:00').replace(' ', ':').split(':')]
-        return datetime(date_values[0], date_values[1], date_values[2], date_values[3], date_values[4], date_values[5])
+        date_values = [int(x) for x in self.__data.get(0x9003, '1970:01:01 00:00:00').replace(
+            ' ', ':').split(':')]
+        return datetime(date_values[0], date_values[1], date_values[2], date_values[3],
+                        date_values[4], date_values[5])
 
     @property
     def gps_info(self) -> Point:
@@ -135,6 +132,8 @@ class Exif:
             return Point()
         if isinstance(geo_data, int):
             return Point()
+        if not isinstance(geo_data, dict):
+            return Point()
         latitude = Point.parse_degrees(*geo_data[2], geo_data[1])
         longitude = Point.parse_degrees(*geo_data[4], geo_data[3])
         alt_unit = 'km'
@@ -142,6 +141,7 @@ class Exif:
             alt_unit = str(geo_data[5]).lower()
         altitude = Point.parse_altitude(geo_data[6], alt_unit)
         # GPSInfo = {1: 'N', 2: (44.0, 49.0, 20.06), 3: 'E', 4: (20.0, 24.0, 38.94), 5: b'\x00', 6: 89.0,
-        # 7: (10.0, 43.0, 54.37), 12: 'K', 13: 0.0, 16: 'T', 17: 246.48684210526315, 23: 'T', 24: 246.48684210526315,
+        # 7: (10.0, 43.0, 54.37), 12: 'K', 13: 0.0, 16: 'T', 17: 246.48684210526315, 23: 'T',
+        # 24: 246.48684210526315,
         # 29: '2016:06:16', 31: 65.0}
         return Point(latitude=latitude, longitude=longitude, altitude=altitude)
