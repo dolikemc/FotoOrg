@@ -1,3 +1,4 @@
+""" Store module containing the entity classes and the store"""
 import logging
 from pathlib import Path
 from datetime import datetime
@@ -23,6 +24,9 @@ log = logging.getLogger('fotorg.info.store')
 
 
 class BaseDir(Base):
+    """
+    Base directory entity
+    """
     __tablename__ = 'base_dir'
     id = Column(Integer, primary_key=True, autoincrement=True)
     path = Column(String, default='/', unique=True)
@@ -31,11 +35,18 @@ class BaseDir(Base):
     scan_start = Column(DateTime, default=datetime.now())
     last_used = Column(DateTime, default=datetime.now())
 
+    @property
+    def as_path(self) -> Path:
+        return Path(self.path)
+
     def __str__(self) -> str:
-        return str(self.path)
+        return self.path
 
 
 class FotoItem(Base):
+    """
+    Foto item entity
+    """
     __versioned__ = {}
     __tablename__ = 'foto_item'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -54,11 +65,18 @@ class FotoItem(Base):
     UniqueConstraint(file_name, relative_path)
     Index(file_name, relative_path)
 
+    @property
+    def as_path(self) -> Path:
+        return Path(self.relative_path) / self.file_name
+
     def __str__(self) -> str:
         return f'{self.relative_path}/{self.file_name} {self.camera_make} {self.camera_model}'
 
 
 class Store:
+    """
+    Store class to extract from given file name a storable foto item object
+    """
 
     def __init__(self, item: Path, directory: Path):
         self.__item = item
@@ -79,7 +97,7 @@ class Store:
             foto = Exif({})
         return FotoItem(
             file_name=file.name,
-            relative_path=str(file.relative_path),
+            relative_path=file.relative_path.as_posix(),
             file_created=file.created,
             file_modified=file.modified,
             file_size=file.size,
@@ -90,3 +108,6 @@ class Store:
             gps_latitude=foto.gps_info.latitude,
             gps_altitude=foto.gps_info.altitude
         )
+
+    def __str__(self) -> str:
+        return (self.__directory / self.__item).as_posix()

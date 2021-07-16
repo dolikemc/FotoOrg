@@ -50,14 +50,23 @@ class TestInfoStore(unittest.TestCase):
         self.assertGreater(len(self.results), 0)
         self.assertEqual('//X.jpg None None', str(self.results[0]))
 
+    def test_to_path(self) -> None:
+        self.results = self.session.query(FotoItem).all()
+        self.assertGreater(len(self.results), 0)
+        self.assertEqual(self.results[0].as_path, Path('/X.jpg'))
+
     def test_store_one_scan_include_no_foto(self) -> None:
 
         scanner = Scan(directory='./test/test_folder', ignore_list=['included_sub_folder'])
         self.assertIsInstance(scanner, Scan)
         for item in scanner.items():
-            entry = Store(item, scanner.directory).prepare_store()
-            existing: FotoItem = self.session.query(FotoItem).filter_by(file_name=entry.file_name,
-                                                                        relative_path=entry.relative_path).first()
+            store = Store(item, scanner.directory)
+            entry = store.prepare_store()
+            existing: FotoItem = self.session.query(FotoItem).filter_by(
+                file_name=entry.file_name,
+                relative_path=entry.relative_path
+            ).first()
+            self.assertEqual(str(store), (Path(scanner.directory) / item).as_posix())
             if existing:
                 existing.file_modified = datetime.now()
             self.assertIsInstance(entry, FotoItem)
@@ -67,7 +76,10 @@ class TestInfoStore(unittest.TestCase):
         directory = Path('./test/test_folder')
         self.session.commit()
         self.assertGreater(len(self.session.query(BaseDir).all()), 0)
-        self.assertEqual(str(self.session.query(BaseDir).first().path), str(directory))
+        base_dir = self.session.query(BaseDir).first()
+        self.assertEqual(base_dir.path, str(directory))
+        self.assertEqual(str(base_dir), directory.as_posix())
+        self.assertEqual(base_dir.as_path, directory)
         self.assertGreaterEqual(len(self.session.query(BaseDir).all()), 1)
         self.assertEqual(str(self.session.query(BaseDir).first()), str(directory))
         scanner = Scan(directory='./test/test_folder', ignore_list=[])

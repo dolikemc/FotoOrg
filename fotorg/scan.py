@@ -1,3 +1,4 @@
+""" Scan module containing only the scan class"""
 from pathlib import Path, PurePath
 from typing import Iterator, Union
 from datetime import datetime
@@ -108,13 +109,13 @@ class Scan:
                 path=str(self.directory)).order_by(
                 desc('created')).first()
             if base_dir:
-                log.debug(f"update for {self.directory}")
+                log.debug(f"update for %s", {self.directory})
                 base_dir.scan_start = datetime.now()
                 base_dir.last_used = datetime.now()
             else:
-                log.debug(f"new record for {self.directory}")
+                log.debug("new record for %s", {self.directory})
                 session.add(
-                    BaseDir(path=str(self.directory), user_name='class'))
+                    BaseDir(path=self.directory.as_posix(), user_name='class'))
             session.commit()
 
         for item in self.items():
@@ -127,8 +128,10 @@ class Scan:
                 ).first()
                 if existing_item:
                     existing_item = foto_item
+                    log.debug("Update record %s", existing_item)
                 else:
                     session.add(foto_item)
+                    log.debug("Insert record %s", foto_item)
                 session.commit()
 
         if session is not None:
